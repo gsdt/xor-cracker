@@ -60,32 +60,33 @@ if __name__ == '__main__':
         prefix_chars='-'
     )
     parser.add_argument('--in', action='store', dest = 'file_in', help='Cipher file to decrypt')
-    parser.add_argument('--out', action='store', dest = 'file_out', help='Decrypt and save plaintext to file_out.')
-    parser.add_argument('--freq', action='store', dest = 'file_freq', help='Frequent character file.', default = 'linux-2.2.14-int-m0.freq')
-    parser.add_argument('--min', action='store', dest='min_length', help='Minimum length of key.', type=int, default=1)
-    parser.add_argument('--max', action='store', dest='max_length', help='Maximum length of key.', type=int, default=51)
+    parser.add_argument('--out', action='store', dest = 'file_out', help='Decrypt and save plaintext to file_out. If not set, the output will display on standard output.')
+    parser.add_argument('--freq', action='store', dest = 'file_freq', help='Frequent character file. The default is linux-2.2.14-int-m0.freq', default = 'linux-2.2.14-int-m0.freq')
+    parser.add_argument('--min', action='store', dest='min_length', help='Minimum length of key. Default MIN = 1', type=int, default=1)
+    parser.add_argument('--max', action='store', dest='max_length', help='Maximum length of key. Default MAX = 51', type=int, default=51)
+    parser.add_argument('--version', action = 'version', version = 'xor-cracker 1.0 by giaosudauto (update at 23:00; 22/04/2018)')
     args = parser.parse_args()
 
     #Main program
     global freq
     freq = load_freq(args.file_freq)
-    #try:
-    with open(args.file_in,'rb') as f:
-        cipher=f.read()
-        key_len = guest_key_length(args.min_length, min(len(cipher),args.max_length), cipher)
-        print('[+] Detected key length: ' + str(key_len))
-        key = crack_repeated_xor(cipher,key_len)
-        print('[+] Found key: [' + key.decode()+']')
-        plain_text = decrypt_xor(cipher,key).decode()
-        if args.file_out == None:
-            print('[+] Plain text:')
-            print(plain_text)
-        else:
-            with open(args.file_out, 'w') as fout:
-                fout.write(plain_text)
-            print('[+] Write plaintext to [{}] success!'.format(args.file_out))
+    try:
+        with open(args.file_in,'rb') as f:
+            cipher=f.read()
+            key_len = guest_key_length(args.min_length, min(len(cipher),args.max_length), cipher)
+            print('[+] Detected key length: ' + str(key_len))
+            key = crack_repeated_xor(cipher,key_len)
+            print('[+] Found key: [' + key.decode()+']')
+            plain_text = decrypt_xor(cipher,key).decode()
+            if args.file_out == None:
+                print('[+] Plain text:')
+                print(plain_text)
+            else:
+                with open(args.file_out, 'w') as fout:
+                    fout.write(plain_text)
+                print('[+] Write plaintext to [{}] success!'.format(args.file_out))
 
-    #except Exception as e:
-    #    print('[+] ERROR: '+str(e))
+    except Exception as e:
+        print('[+] ERROR: '+str(e))
 
        
